@@ -1,0 +1,87 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}  
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ template "clickhouse-on-kube.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+      release: {{ .Release.Name }}
+  serviceName: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+        release: {{ .Release.Name }}
+    spec:      
+      initContainers:
+      - name: labeler
+        image: devth/k8s-labeler
+        env:
+        - name: KUBE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBE_LABEL_shard_name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}          
+          ports:
+          - name: rpc
+            containerPort: {{ .Values.service.rpc_port }}
+            protocol: TCP
+          - name: rest
+            containerPort: {{ .Values.service.rest_port }}
+            protocol: TCP          
+          volumeMounts:
+          - name: clickhouse-config
+            mountPath: /etc/clickhouse-server/config.d
+          {{ if .Values.ebs.enabled }}
+          - name: clickhouse-data
+            mountPath: /clickhouse
+          {{ end }}
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: clickhouse-config
+        configMap:
+          name: {{ .Release.Name }}
+      {{ if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+      - name: {{ .Values.image.imagePullSecrets }}
+      {{ end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}      
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}  
+
+{{ if .Values.ebs.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: clickhouse-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: {{ .Values.ebs.size }}
+{{ end }}

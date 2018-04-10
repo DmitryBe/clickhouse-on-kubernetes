@@ -1,0 +1,56 @@
+{{range $i, $e := until (atoi (printf "%d" (int64 .Values.replicaCount))) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $.Release.Name }}-{{$i}}
+  labels:
+    app: {{ template "clickhouse-on-kube.name" $ }}
+    chart: {{ template "clickhouse-on-kube.chart" $ }}
+    release: {{ $.Release.Name }}
+    heritage: {{ $.Release.Service }}
+spec:
+  type: {{ $.Values.service.type }}
+  ports:
+  - name: rpc
+    port: {{ $.Values.service.rpc_port }}
+    targetPort: {{ $.Values.service.rpc_port }}
+    protocol: TCP      
+  - name: rest
+    port: {{ $.Values.service.rest_port }}
+    targetPort: {{ $.Values.service.rest_port }}
+    protocol: TCP      
+  selector:
+    app: {{ $.Release.Name }}
+    shard_name: {{ $.Release.Name }}-{{$i}}
+    release: {{ $.Release.Name }}
+---
+{{end}}
+# --- elb ---
+{{- if .Values.elb.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}  
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ template "clickhouse-on-kube.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: {{ .Values.elb.internal_range }}
+spec:  
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: rpc
+    port: {{ $.Values.service.rpc_port }}
+    targetPort: {{ $.Values.service.rpc_port }}
+    protocol: TCP      
+  - name: rest
+    port: {{ $.Values.service.rest_port }}
+    targetPort: {{ $.Values.service.rest_port }}
+    protocol: TCP      
+  selector:
+    app: {{ .Release.Name }}  
+  sessionAffinity: None
+  type: LoadBalancer
+  {{- end }}

@@ -1,0 +1,37 @@
+# This is a simple example of using a config map to create a single page static site.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}  
+  labels:
+    app: {{ .Release.Name }}
+    chart: {{ template "clickhouse-on-kube.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  clickhouse_remote_servers.xml: |-
+    <yandex>
+        <remote_servers incl="clickhouse_remote_servers" >        
+        <default_cluster>
+            {{range $i, $e := until (atoi (printf "%d" (int64 .Values.replicaCount))) }}
+              <shard>
+                <replica>
+                    <host>{{ $.Release.Name }}-{{$i}}</host>
+                    <port>{{ $.Values.service.rpc_port }}</port>
+                </replica>
+              </shard>
+            {{end}}
+        </default_cluster>
+        </remote_servers>
+    </yandex>
+  docker_related_config.xml: |-
+    <yandex>
+        <listen_host>0.0.0.0</listen_host>
+        <listen_host>::</listen_host>
+        <listen_try>1</listen_try>
+        <!--
+        <logger>
+            <console>1</console>
+        </logger>
+        -->
+    </yandex>

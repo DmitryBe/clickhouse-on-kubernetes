@@ -1,0 +1,57 @@
+# Default values for clickhouse-on-kube.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# number of nodes / shards
+replicaCount: 3
+
+image:
+  repository: grabds/clickhouse-server
+  tag: latest
+  pullPolicy: Always
+  imagePullSecrets: grabdsbot
+
+service:
+  type: ClusterIP
+  rpc_port: 9000
+  rest_port: 8123
+
+ebs:
+  # use aws ebs
+  enabled: true
+  size: 8Gi
+
+elb:
+  # use frontend elb
+  enabled: true
+  internal_range: 10.59.0.0/16,10.10.0.0/16
+
+ingress:
+  # use ingress
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:  
+  limits:
+   cpu: 250m
+   memory: 1024Mi
+  requests:
+   cpu: 250m
+   memory: 1024Mi
+
+nodeSelector:
+  # use nodes with label
+  type: services
+
+tolerations: []
+
+affinity: {}
