@@ -6,10 +6,10 @@
 replicaCount: 3
 
 image:
-  repository: grabds/clickhouse-server
+  repository: dmitryb/clickhouse-server
   tag: latest
   pullPolicy: Always
-  imagePullSecrets: grabdsbot
+  # imagePullSecrets: grabdsbot
 
 # grant pods/patch to default sa
 rbac: true

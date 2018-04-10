@@ -1,23 +1,9 @@
 # clickhouse-on-kubernetes
 
-## misc
+Run clickhouse server on kubernetes
 
-clickhouse remote-servers config path: /etc/clickhouse-server/config.d/clickhouse_remote_servers.xml
+## Dev
 
-example: 
-``xml
-<yandex>
-    <remote_servers incl="clickhouse_remote_servers" >        
-    <cluster_3shards_1replicas>
-        
-    <shard>
-        <replica>
-            <host>172.17.0.3</host>
-            <port>9000</port>
-        </replica>
-    </shard>    
-    
-    </cluster_3shards_1replicas>
-    </remote_servers>
-</yandex>
-```
+To rebuild docker image run: `make docker-build`
+
+To rebuild helm package run: `make helm-pckg`
