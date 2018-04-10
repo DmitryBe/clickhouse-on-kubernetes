@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-internal: 10.59.0.0/16,10.10.0.0/16
+  labels:
+    app: clickhouse
+  name: clickhouse-elb
+  namespace: playground
+spec:
+  ports:
+  - name: http
+    port: 8123
+    protocol: TCP
+    targetPort: 8123
+  - name: rpc
+    port: 9000
+    protocol: TCP
+    targetPort: 9000
+  selector:
+    app: clickhouse
+  sessionAffinity: None
+  type: LoadBalancer

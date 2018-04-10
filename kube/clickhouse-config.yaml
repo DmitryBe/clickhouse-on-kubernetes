@@ -1,0 +1,45 @@
+kind: ConfigMap
+apiVersion: v1
+data:
+  clickhouse_remote_servers.xml: |-
+    <yandex>
+        <remote_servers incl="clickhouse_remote_servers" >
+        <default_cluster>
+            <shard>
+                <replica>
+                    <host>clickhouse-0</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+            <shard>
+                <replica>
+                    <host>clickhouse-1</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+            <shard>
+                <replica>
+                    <host>clickhouse-2</host>
+                    <port>9000</port>
+                </replica>
+            </shard>
+        </default_cluster>
+        </remote_servers>
+    </yandex> 
+  docker_related_config.xml: |-
+    <yandex>
+        <listen_host>0.0.0.0</listen_host>
+        <listen_host>::</listen_host>
+        <listen_try>1</listen_try>
+
+        <!--
+        <logger>
+            <console>1</console>
+        </logger>
+        -->
+    </yandex>
+metadata:
+  name: clickhouse-config
+  namespace: playground
+  labels:
+    addonmanager.kubernetes.io/mode: Reconcile

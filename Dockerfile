@@ -19,7 +19,8 @@ RUN apt-get update --allow-unauthenticated && \
 RUN cd /tmp && \
     curl -O https://dl.google.com/go/go1.10.1.linux-amd64.tar.gz && \
     tar -xvf go1.10.1.linux-amd64.tar.gz && \
-    mv go /usr/local
+    mv go /usr/local && \
+    rm go1.10.1.linux-amd64.tar.gz
 
 ENV GOROOT=/usr/local/go
 ENV PATH=$PATH:$GOROOT/bin
@@ -29,6 +30,10 @@ RUN apt-get clean
 
 COPY docker_related_config.xml /etc/clickhouse-server/config.d/
 COPY ./config/config.xml /etc/clickhouse-server/
+
+# data / tmp db location
+RUN mkdir -p /clickhouse/data && \
+    mkdir -p /clickhouse/tmp
 
 ADD cluster-coordinator /cluster-coordinator
 # build coordinator

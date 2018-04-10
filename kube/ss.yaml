@@ -1,0 +1,88 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  labels:
+    app: clickhouse
+  name: clickhouse
+  namespace: playground
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 3
+  selector:
+    matchLabels:
+      app: clickhouse
+  serviceName: clickhouse
+  template:
+    metadata:
+      labels:
+        app: clickhouse
+    spec:
+      initContainers:
+      - name: labeler
+        image: devth/k8s-labeler
+        env:
+        - name: KUBE_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: KUBE_LABEL_shard_name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+      containers:
+      - env:
+        - name: MAX_HEAP_SIZE
+          value: 512M
+        - name: KUBE_LABEL_shard_name
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.podIP
+        image: grabds/clickhouse-server:latest
+        imagePullPolicy: Always
+        name: clickhouse
+        ports:
+        - name: rpc
+          containerPort: 9000
+          protocol: TCP
+        - name: rest
+          containerPort: 8123
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            memory: 1Gi
+        volumeMounts:
+        - name: clickhouse-config
+          mountPath: /etc/clickhouse-server/config.d
+        - name: clickhouse-data
+          mountPath: /clickhouse
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        type: services
+      imagePullSecrets:
+      - name: grabdsbot
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: clickhouse-config
+        configMap:
+          name: clickhouse-config
+  volumeClaimTemplates:
+  - metadata:
+      name: clickhouse-data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 7Gi

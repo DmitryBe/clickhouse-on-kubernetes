@@ -1,0 +1,31 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  labels:
+    tech-family: playground
+  name: patch-pod
+  namespace: playground
+rules:
+- apiGroups:
+  - '*'
+  resources:
+  - pods
+  verbs:
+  - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: RoleBinding
+metadata:
+  labels:
+    k8s-user: default
+    k8s-role: patch-pod
+  name: default:patch-pod
+  namespace: playground
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: patch-pod
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: playground
