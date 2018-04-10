@@ -1,3 +1,4 @@
+# docker vars
 REPO=dmitryb/clickhouse-server
 TAG=latest
 
