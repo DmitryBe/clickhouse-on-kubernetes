@@ -26,6 +26,12 @@ elb:
   enabled: true
   internal_range: 10.59.0.0/16,10.10.0.0/16
 
+zk:
+  enabled: true
+  port: 2181
+  servers:
+  - zk-zookeeper.zk
+
 ingress:
   # use ingress
   enabled: false

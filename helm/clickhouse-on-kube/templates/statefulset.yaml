@@ -44,6 +44,22 @@ spec:
           - name: rest
             containerPort: {{ .Values.service.rest_port }}
             protocol: TCP          
+          livenessProbe:
+            httpGet:
+              path: /
+              port: rest
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 1
+          readinessProbe:
+            httpGet:
+              path: /
+              port: rest
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+            timeoutSeconds: 1
           volumeMounts:
           - name: clickhouse-config
             mountPath: /etc/clickhouse-server/config.d

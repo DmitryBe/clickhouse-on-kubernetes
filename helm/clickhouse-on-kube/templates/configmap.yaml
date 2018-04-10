@@ -35,3 +35,26 @@ data:
         </logger>
         -->
     </yandex>
+{{ if .Values.zk.enabled }}      
+  zookeeper-servers.xml: |-
+    <yandex>
+        <zookeeper incl="zookeeper-servers">
+            {{- range $index, $zk := .Values.zk.servers }}
+            <node index="1">
+                <host>{{ $zk }}</host>
+                <port>{{ $.Values.zk.port }}</port>
+            </node>
+            {{- end }}        
+        </zookeeper>
+
+        <!-- Allow to execute distributed DDL queries (CREATE, DROP, ALTER, RENAME) on cluster.
+        Works only if ZooKeeper is enabled. Comment it if such functionality isn't required. -->        
+        <distributed_ddl incl="clickhouse_distributed_ddl">
+            <!-- Path in ZooKeeper to queue with DDL queries -->
+            <path>/{{ .Release.Name }}/task_queue/ddl</path>
+
+            <!-- Settings from this profile will be used to execute DDL queries -->
+            <!-- <profile>default</profile> -->
+        </distributed_ddl>
+    </yandex>
+{{ end }}
