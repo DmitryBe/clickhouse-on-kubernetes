@@ -28,7 +28,7 @@ ENV PATH=$PATH:$GOROOT/bin
 # clean 
 RUN apt-get clean
 
-COPY docker_related_config.xml /etc/clickhouse-server/config.d/
+COPY ./config/docker_related_config.xml /etc/clickhouse-server/config.d/
 COPY ./config/config.xml /etc/clickhouse-server/
 
 # data / tmp db location

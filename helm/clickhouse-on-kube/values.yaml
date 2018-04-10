@@ -11,6 +11,9 @@ image:
   pullPolicy: Always
   imagePullSecrets: grabdsbot
 
+# grant pods/patch to default sa
+rbac: true
+
 service:
   type: ClusterIP
   rpc_port: 9000
