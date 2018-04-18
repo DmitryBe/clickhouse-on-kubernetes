@@ -31,18 +31,12 @@ RUN apt-get clean
 COPY ./config/docker_related_config.xml /etc/clickhouse-server/config.d/
 COPY ./config/config.xml /etc/clickhouse-server/
 
+# move to users.d
+RUN mkdir /etc/clickhouse-server/users.d && mv /etc/clickhouse-server/users.xml /etc/clickhouse-server/users.d
+
 # data / tmp db location
 RUN mkdir -p /clickhouse/data && \
     mkdir -p /clickhouse/tmp
-
-ADD cluster-coordinator /cluster-coordinator
-# build coordinator
-RUN cd /cluster-coordinator && \
-    export GOPATH=/cluster-coordinator && \
-    export GOROOT=/usr/local/go && \
-    export GOBIN=$GOROOT/bin && \
-    go get && \
-    go build .
 
 EXPOSE 9000 8123 9009
 VOLUME /var/lib/clickhouse
