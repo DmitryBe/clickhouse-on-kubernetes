@@ -2,40 +2,14 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}  
+  name: {{ .Release.Name }}-usersd 
   labels:
-    app: {{ .Release.Name }}
+    app: {{ .Release.Name }}-usersd
     chart: {{ template "clickhouse-on-kube.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 data:
-  clickhouse_remote_servers.xml: |-
-    <yandex>
-        <remote_servers incl="clickhouse_remote_servers" >        
-        <default_cluster>
-            {{range $i, $e := until (atoi (printf "%d" (int64 .Values.replicaCount))) }}
-              <shard>
-                <replica>
-                    <host>{{ $.Release.Name }}-{{$i}}</host>
-                    <port>{{ $.Values.service.rpc_port }}</port>
-                </replica>
-              </shard>
-            {{end}}
-        </default_cluster>
-        </remote_servers>
-    </yandex>
-  docker_related_config.xml: |-
-    <yandex>
-        <listen_host>0.0.0.0</listen_host>
-        <listen_host>::</listen_host>
-        <listen_try>1</listen_try>
-        <!--
-        <logger>
-            <console>1</console>
-        </logger>
-        -->
-    </yandex>
-  security_config.xml: |-
+  users.xml: |-
     <yandex>
         <!-- Profiles-->
         <profiles>
@@ -96,26 +70,3 @@ data:
             {{- end }}
         </users>
     </yandex>
-{{ if .Values.zk.enabled }}      
-  zookeeper-servers.xml: |-
-    <yandex>
-        <zookeeper incl="zookeeper-servers">
-            {{- range $index, $zk := .Values.zk.servers }}
-            <node index="1">
-                <host>{{ $zk }}</host>
-                <port>{{ $.Values.zk.port }}</port>
-            </node>
-            {{- end }}        
-        </zookeeper>
-
-        <!-- Allow to execute distributed DDL queries (CREATE, DROP, ALTER, RENAME) on cluster.
-        Works only if ZooKeeper is enabled. Comment it if such functionality isn't required. -->        
-        <distributed_ddl incl="clickhouse_distributed_ddl">
-            <!-- Path in ZooKeeper to queue with DDL queries -->
-            <path>/{{ .Release.Name }}/task_queue/ddl</path>
-
-            <!-- Settings from this profile will be used to execute DDL queries -->
-            <!-- <profile>default</profile> -->
-        </distributed_ddl>
-    </yandex>
-{{ end }}

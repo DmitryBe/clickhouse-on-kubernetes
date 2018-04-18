@@ -61,8 +61,10 @@ spec:
             failureThreshold: 5
             timeoutSeconds: 1
           volumeMounts:
-          - name: clickhouse-config
+          - name: clickhouse-configd
             mountPath: /etc/clickhouse-server/config.d
+          - name: clickhouse-usersd
+            mountPath: /etc/clickhouse-server/users.d
           {{ if .Values.ebs.enabled }}
           - name: clickhouse-data
             mountPath: /clickhouse
@@ -70,9 +72,12 @@ spec:
           resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
-      - name: clickhouse-config
+      - name: clickhouse-configd
         configMap:
-          name: {{ .Release.Name }}
+          name: {{ .Release.Name }}-configd
+      - name: clickhouse-usersd
+        configMap:
+          name: {{ .Release.Name }}-usersd
       {{ if .Values.image.imagePullSecrets }}
       imagePullSecrets:
       - name: {{ .Values.image.imagePullSecrets }}
