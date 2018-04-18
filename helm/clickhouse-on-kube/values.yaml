@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 # number of nodes / shards
-replicaCount: 3
+replicaCount: 1
 
 image:
   repository: dmitryb/clickhouse-server
@@ -35,6 +35,32 @@ zk:
   servers:
   - zk-zookeeper.zk
 
+security:
+  profiles:
+  - name: default
+    max_memory_usage: 10000000000
+    use_uncompressed_cache: 0
+    load_balancing: random
+
+  quotas:
+  - name: default
+    duration: 3600
+    queries: 0
+    errors: 0
+    result_rows: 0
+    read_rows: 0 
+    execution_time: 0
+
+  users:
+  - name: admin
+    password: djfgyeugf3484rf4
+    profile: default
+    quota: default
+  - name: readonly
+    password: dhewfh843fh87gdf
+    profile: readonly
+    quota: default
+  
 ingress:
   # use ingress
   enabled: false
