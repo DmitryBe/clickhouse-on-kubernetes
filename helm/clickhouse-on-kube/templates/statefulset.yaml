@@ -44,6 +44,9 @@ spec:
           - name: rest
             containerPort: {{ .Values.service.rest_port }}
             protocol: TCP          
+          - name: interserver
+            containerPort: 9009
+            protocol: TCP
           livenessProbe:
             httpGet:
               path: /
@@ -63,8 +66,10 @@ spec:
           volumeMounts:
           - name: clickhouse-configd
             mountPath: /etc/clickhouse-server/config.d
+          {{ if .Values.security.enabled }}
           - name: clickhouse-usersd
             mountPath: /etc/clickhouse-server/users.d
+          {{ end }}
           {{ if .Values.ebs.enabled }}
           - name: clickhouse-data
             mountPath: /clickhouse
@@ -75,9 +80,11 @@ spec:
       - name: clickhouse-configd
         configMap:
           name: {{ .Release.Name }}-configd
+      {{ if .Values.security.enabled }}
       - name: clickhouse-usersd
         configMap:
           name: {{ .Release.Name }}-usersd
+      {{ end }}
       {{ if .Values.image.imagePullSecrets }}
       imagePullSecrets:
       - name: {{ .Values.image.imagePullSecrets }}

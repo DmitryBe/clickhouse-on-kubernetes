@@ -1,3 +1,4 @@
+{{- if .Values.security.enabled -}}
 # This is a simple example of using a config map to create a single page static site.
 apiVersion: v1
 kind: ConfigMap
@@ -68,5 +69,31 @@ data:
                 <quota>{{ .quota | default "default" }}</quota>
             </{{ .name }}>
             {{- end }}
+            
+            <!-- User for distributed queries -->
+            <{{ .Values.security.distributed.user }}>
+                <password>{{ .Values.security.distributed.password }}</password>
+
+                <networks incl="networks" replace="replace">
+                    <ip>::/0</ip>
+                </networks>
+
+                <!-- Settings profile for user. -->
+                <profile>{{ .Values.security.distributed.profile | default "default" }}</profile>
+
+                <!-- Quota for user. -->
+                <quota>{{ .Values.security.distributed.quota | default "default" }}</quota>
+            </{{ .Values.security.distributed.user }}>
+
+            <readonly>
+                <password></password>
+                <networks incl="networks" replace="replace">
+                    <ip>::1</ip>
+                    <ip>127.0.0.1</ip>
+                </networks>
+                <profile>readonly</profile>
+                <quota>default</quota>
+            </readonly>
         </users>
     </yandex>
+{{- end }}

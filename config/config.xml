@@ -107,7 +107,7 @@
     <tmp_path>/clickhouse/tmp/</tmp_path>
 
     <!-- Path to configuration file with users, access rights, profiles of settings, quotas. -->
-    <users_config>users.d/users.xml</users_config>
+    <users_config>/etc/clickhouse-server/users.d/users.xml</users_config>
 
     <!-- Default profile of settings. -->
     <default_profile>default</default_profile>

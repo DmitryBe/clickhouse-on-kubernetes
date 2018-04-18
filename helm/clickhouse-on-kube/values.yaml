@@ -36,6 +36,8 @@ zk:
   - zk-zookeeper.zk
 
 security:
+  enabled: true
+
   profiles:
   - name: default
     max_memory_usage: 10000000000
@@ -52,15 +54,22 @@ security:
     execution_time: 0
 
   users:
-  - name: admin
+  - name: user_1
     password: djfgyeugf3484rf4
     profile: default
     quota: default
-  - name: readonly
-    password: dhewfh843fh87gdf
-    profile: readonly
+  - name: svc
+    password: sdkfh1kjdshfkjj3
+    profile: default
     quota: default
-  
+
+  # is used for running distributed queries (system)  
+  distributed:
+    user: sys_distrib_query
+    password: iudhc87wfy87hrevh
+    profile: default
+    quota: default
+
 ingress:
   # use ingress
   enabled: false

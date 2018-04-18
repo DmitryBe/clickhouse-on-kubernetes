@@ -30,9 +30,7 @@ RUN apt-get clean
 
 COPY ./config/docker_related_config.xml /etc/clickhouse-server/config.d/
 COPY ./config/config.xml /etc/clickhouse-server/
-
-# move to users.d
-RUN mkdir /etc/clickhouse-server/users.d && mv /etc/clickhouse-server/users.xml /etc/clickhouse-server/users.d
+COPY ./config/users.xml /etc/clickhouse-server/users.d/
 
 # data / tmp db location
 RUN mkdir -p /clickhouse/data && \

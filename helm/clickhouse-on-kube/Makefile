@@ -13,6 +13,7 @@ helm-install-stg:
 	    --namespace=clickhouse \
 	    --set replicaCount=5 \
 	    --set ebs.size=500Gi \
+	    --set security.enabled=true \
 	    --set resources.limits.cpu=3800m \
 	    --set resources.limits.memory=28000Mi \
 	    --set resources.requests.cpu=3800m \

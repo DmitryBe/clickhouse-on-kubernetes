@@ -18,6 +18,10 @@ data:
                 <replica>
                     <host>{{ $.Release.Name }}-{{$i}}</host>
                     <port>{{ $.Values.service.rpc_port }}</port>
+                    {{ if $.Values.security.enabled }}
+                    <user>{{ $.Values.security.distributed.user }}</user>
+                    <password>{{ $.Values.security.distributed.password }}</password>
+                    {{ end }}
                 </replica>
               </shard>
             {{end}}
